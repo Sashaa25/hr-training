@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import * as dotenv from 'dotenv';
 import { db } from './src/db/index.ts';
 import { trainingSessions, questions, examResults, proctorLogs, users } from './src/db/schema.ts';
@@ -830,24 +831,29 @@ app.post('/api/reset', async (req: Request, res: Response) => {
 
 // 9. Mount Vite in development mode or serve static files
 async function startServer() {
-  await seedDatabaseIfEmpty();
+  const distPath = path.resolve(process.cwd(), 'dist');
+  const hasDist = fs.existsSync(distPath) && fs.existsSync(path.join(distPath, 'index.html'));
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV === 'production' || hasDist) {
+    app.use(express.static(distPath));
+    app.get('*', (req: Request, res: Response) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } else {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.resolve(__dirname, 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req: Request, res: Response) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+  });
+
+  // Seed DB asynchronously in the background so it never blocks the startup health probe
+  seedDatabaseIfEmpty().catch(() => {
+    // Gracefully handle any initial seeding issues
   });
 }
 

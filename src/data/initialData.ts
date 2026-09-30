@@ -1,4 +1,4 @@
-import { User, TrainingSession, Question, ExamResult, ProctorLog, CertificateSettings } from '../types';
+import type { User, TrainingSession, Question, ExamResult, ProctorLog, CertificateSettings } from '../types/index.ts';
 
 export const DEFAULT_CERT_SETTINGS: CertificateSettings = {
   companyName: 'PT CIPTA INOVASI PERSADA',
