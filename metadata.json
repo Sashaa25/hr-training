@@ -1,0 +1,6 @@
+{
+  "name": "HR Training Exam & Evaluation System",
+  "description": "Sistem evaluasi pelatihan HR terpadu dengan modul Pretest & Posttest, import bank soal Excel, active camera proctoring, generator e-sertifikat instan, dan pelaporan eksekutif analitik.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
